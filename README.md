@@ -22,7 +22,7 @@
 ## Run
 
 ```bash
-npm run
+npm run test
 ```
 
 ## Structure
