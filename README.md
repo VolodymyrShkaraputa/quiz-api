@@ -16,7 +16,8 @@
 - Install dependencies `npm ci`
 - Add environment settings `.env`
   API_BASE_URL=https://stage.allright.com
-  AUTH_BASIC_AUTH= =***********
+  OAUTH_CLIENT_ID=**********
+  OAUTH_CLIENT_SECRET=******
 
 ## Run
 

@@ -59,35 +59,55 @@ export class UsersApi {
     username: string,
     password: string,
   ): Promise<AccessTokenResponse> {
-    const oauthBasicAuth = process.env.OAUTH_BASIC_AUTH;
+    const clientId = process.env.OAUTH_CLIENT_ID ?? "frontendClient";
+    const clientSecret = process.env.OAUTH_CLIENT_SECRET;
 
-    if (!oauthBasicAuth) {
-      throw new Error("OAUTH_BASIC_AUTH is not configured in .env");
+    if (!clientSecret) {
+      throw new Error(
+        "OAUTH_CLIENT_SECRET is not configured. Create .env from .env.example.",
+      );
     }
+
+    const normalizedUsername = username.replace(/^\+/, "");
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
+      "base64",
+    );
 
     const response = await this.request.post("/oauth/token", {
       headers: {
-        Authorization: `Basic ${oauthBasicAuth}`,
+        Accept: "*/*",
+        Authorization: `Basic ${basicAuth}`,
         "Content-Type": "application/x-www-form-urlencoded",
+        Origin: `${process.env.API_BASE_URL}`,
+        Referer:
+          `${process.env.API_BASE_URL}/uk/app/sign-up/long/charlie/user-info-phone`,
       },
 
       form: {
         grant_type: "password",
-        username,
+        username: normalizedUsername,
         password,
-        client_id: "frontendClient",
+        client_id: clientId,
       },
     });
 
-    const body = await response.json();
+    const responseText = await response.text();
 
     expect(
       response.ok(),
-      `Get token failed: ${response.status()} ${JSON.stringify(body)}`,
+      `Get token failed: ${response.status()} ${responseText}`,
     ).toBeTruthy();
 
+    let body: AccessTokenResponse;
+
+    try {
+      body = JSON.parse(responseText) as AccessTokenResponse;
+    } catch {
+      throw new Error(`OAuth response is not valid JSON: ${responseText}`);
+    }
+
     expect(body.access_token).toBeTruthy();
-    expect(body.token_type).toBeTruthy();
+    expect(body.token_type.toLowerCase()).toBe("bearer");
     expect(body.expires_in).toBeGreaterThan(0);
 
     return body;

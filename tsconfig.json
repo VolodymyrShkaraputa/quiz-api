@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
-      "types": ["node"],
-    "module": "commonjs",
-    "lib": ["ES2021", "DOM"],
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "types": ["node", "@playwright/test"],
+    "noEmit": true
   },
-  "include": ["tests/**/*.ts"]
+  "include": [
+    "playwright.config.ts",
+    "tests/**/*.ts",
+    "api/**/*.ts",
+    "data/**/*.ts",
+    "utils/**/*.ts"
+  ]
 }
